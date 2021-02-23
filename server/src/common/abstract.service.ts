@@ -5,13 +5,13 @@ import { Repository } from 'typeorm';
 export class AbstractService {
   constructor(protected readonly repository: Repository<any>) {}
 
-  findAll(): Promise<any[]> {
-    return this.repository.find();
+  findAll(relations = []): Promise<any[]> {
+    return this.repository.find({ relations });
   }
 
-  findOne(condition): Promise<any> {
+  findOne(condition, relations = []): Promise<any> {
                                         // { id: "myId "}
-    return this.repository.findOne({ where: condition });
+    return this.repository.findOne({ where: condition, relations });
   }
 
   create(body): Promise<any> {

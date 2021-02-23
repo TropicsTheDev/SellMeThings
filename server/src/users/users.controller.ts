@@ -9,7 +9,7 @@ export class UsersController {
   @Get()
   async getAll(): Promise<ServiceResponse> {
     try {
-      const users = await this.usersService.findAll();
+      const users = await this.usersService.findAll(["userType"]);
 
       const data = users.map((user) => {
         const { password, ...data } = user;
@@ -37,7 +37,7 @@ export class UsersController {
   @Get(":id")
   async getOne(@Param("id") id: string): Promise<ServiceResponse> {
     try {
-      const user = await this.usersService.findOne(id);
+      const user = await this.usersService.findOne({ id }, ["userType"]);
       const { password, ...data } = user;
 
       return new ServiceResponse({
@@ -52,7 +52,7 @@ export class UsersController {
       return new ServiceResponse({
         isSuccess: false,
         timeStamp: Date.now(),
-        messgae: "User found",
+        messgae: "User not found",
         data: {},
       });
     }

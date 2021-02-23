@@ -13,18 +13,19 @@ import { UsersService } from "../users/users.service";
 import { ServiceResponse } from "../common/serviceResponse";
 import * as argon2 from "argon2";
 import { JwtService } from "@nestjs/jwt";
+import { UserTypesService } from "src/users/userTypes.service";
 
 @Controller("auth")
 export class AuthController {
   constructor(
-    private readonly userService: UsersService,
+    private readonly userService: UsersService, private readonly userTypesService: UserTypesService,
     private jwtService: JwtService,
   ) {}
 
   @Post("register")
   async register(@Body() userData: any): Promise<ServiceResponse> {
     try {
-      const { password } = userData;
+      const { password, type } = userData;
 
       // hash password
       const hash = await argon2.hash(password);
@@ -33,10 +34,15 @@ export class AuthController {
       //   Password: ${password},
       //   Hash: ${hash}
       // `);
+
+      // get the type for relation
+      const userType = (await this.userTypesService.findOne({ name: type })).id;
+
       // make user
       const createdUser = await this.userService.create({
         ...userData,
         password: hash,
+        userType,
       });
 
       // remove password from createdUser and return the rest
@@ -55,7 +61,7 @@ export class AuthController {
     } catch (error) {
       console.error(error);
       return new ServiceResponse({
-        isSuccess: true,
+        isSuccess: false,
         timeStamp: Date.now(),
         messgae: "Error occured registering user",
         data: {},
